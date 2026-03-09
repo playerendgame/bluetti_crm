@@ -23,12 +23,17 @@
                   <label>Phone Number #</label>
                   <input type="text" class="form-control" v-model="customer.number" disabled />
                 </div>
+                <div class="form-group">
+                  <label>Address</label>
+                  <input type="text" class="form-control" v-model="customer.address" disabled />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
     <!--Orders table-->
     <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12">
@@ -92,30 +97,139 @@
             </ul>
           </nav>
         </div>
+
+        <!-- Quotations Section -->
+        <div class="card custom-card p-4">
+          <div class="row">
+            <h3 class="h3 bold">Activities</h3>
+          </div>
+          <div class="row">
+            <nav class="navbar navbar-expand-lg">
+              <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="navbar-nav">
+                    <li class="nav-item">
+                      <button class="nav-link active" aria-current="page"  @click="quotationTab">Quotation</button>
+                    </li>
+                    <li class="nav-item">
+                      <button class="nav-link" aria-current="page" @click="sampleTab">Others coming soon...</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+          <hr>
+
+          <!--Quotations-->
+          <div class="quotation_container mt-4" v-if="isQuotation">
+            <div class="upper-header pb-3">
+              <div class="row">
+                <div class="col-6 d-flex">
+                  <span class="h4 pb-4">Quotations</span>
+                  <div class="button ms-3">
+                    <button class="btn btn-primary" @click="addQuotation">
+                      <i class="fas fa-plus"></i> Add Quotation
+                    </button>
+                  </div>
+                </div>
+                <div class="col-6 d-flex justify-content-end">
+                  <input type="search" class="form-control w-50" placeholder="Search quotations" v-model="searchQuotation" @input="filterQuotations">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Quotations Table -->
+            <div v-if="quotations.length > 0" class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Reference Number</th>
+                    <th>Items</th>
+                    <th>Total Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(quotation, index) in filteredQuotations" :key="index">
+                    <td>{{ formatDate(quotation.created_at) }}</td>
+                    <td>{{ quotation.reference_number }}</td>
+                    <td>{{ quotation.quotation_products ? quotation.quotation_products.length : 0 }} item(s)</td>
+                    <td>{{ formatPrice(calculateQuotationTotal(quotation)) }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-info me-1" @click="viewQuotation(quotation)">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                      <!-- <button class="btn btn-sm btn-warning" @click="editQuotation(quotation)">
+                        <i class="fas fa-edit"></i> Edit
+                      </button> -->
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div v-else class="text-center py-4">
+              <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+              <p class="text-muted">No quotations found for this customer</p>
+              <button class="btn btn-primary" @click="addQuotation">
+                <i class="fas fa-plus"></i> Create First Quotation
+              </button>
+            </div>
+          </div>
+
+          <!--Other activity coming soon..-->
+          <div class="sample_container mt-4" v-if="isSample">
+            Coming Soon...
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Add Quotation Modal -->
+    <add-quotation-modal-component 
+      :customer="customer"
+      @quotation-created="onQuotationCreated"
+    />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import AddQuotationModalComponent from './modals/AddQuotationModalComponent.vue';
+import ViewQuotationCompoennt from './ViewQuotationComponent.vue';
+import { useListeners } from 'vue';
 
 export default {
+  components: {
+    AddQuotationModalComponent,
+    ViewQuotationCompoennt
+  },
+
   props: ['customer'],
 
   data() {
     return {
       orders: [],
+      quotations: [],
       currentSortField: null,
       currentSortOrder: 'asc',
       currentPage: 1,
       ordersPerPage: 5,
       search: '',
+      searchQuotation: '',
+      quotationsPerPage: 10,
+      quotationsCurrentPage: 1,
+
+      isQuotation: true,
+      isSample: false
     };
   },
 
   mounted() {
     this.fetchCustomerOrders();
+    this.fetchCustomerQuotations();
   },
 
   computed: {
@@ -147,18 +261,103 @@ export default {
     endIndex() {
       const end = this.currentPage * this.ordersPerPage;
       return end > this.filteredOrders.length ? this.filteredOrders.length : end;
+    },
+
+    //Filtered quotations
+    filteredQuotations() {
+      if (!this.searchQuotation) {
+        return this.quotations;
+      }
+      const searchLower = this.searchQuotation.toLowerCase();
+      return this.quotations.filter(quotation => 
+        quotation.reference_number.toLowerCase().includes(searchLower) ||
+        quotation.quotation_products.some(qp => 
+          qp.products && qp.products.name.toLowerCase().includes(searchLower)
+        )
+      );
+    },
+
+    //Paginated quotations
+    paginatedQuotations() {
+      const startIndex = (this.quotationsCurrentPage - 1) * this.quotationsPerPage;
+      const endIndex = startIndex + this.quotationsPerPage;
+      return this.filteredQuotations.slice(startIndex, endIndex);
     }
   },
 
   methods: {
-    fetchCustomerOrders() {
-      axios.get(`/ajax/admin/customers/${this.customer.id}/orders`)
-        .then(response => {
-          this.orders = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching customer orders:', error);
-        });
+    async fetchCustomerOrders() {
+      try {
+        const response = await axios.get(`/ajax/admin/customers/${this.customer.id}/orders`);
+        this.orders = response.data;
+      } catch (error) {
+        console.error('Error fetching customer orders:', error);
+      }
+    },
+
+    async fetchCustomerQuotations() {
+      try {
+        const response = await axios.get(`/ajax/admin/customers/${this.customer.id}/quotations`);
+        if (response.data.success) {
+          this.quotations = response.data.quotations;
+        }
+      } catch (error) {
+        console.error('Error fetching customer quotations:', error);
+      }
+    },
+
+    addQuotation() {
+      this.$bvModal.show('addQuotationForm');
+    },
+
+    onQuotationCreated(quotation) {
+      this.quotations.unshift(quotation);
+      this.$bvToast.toast('Quotation created successfully!', {
+        title: 'Success',
+        variant: 'success'
+      });
+    },
+
+    viewQuotation(quotation) {
+        if (quotation && quotation.id) {
+            window.location.href = `/admin/customers/quotation/${quotation.id}`;
+        } else {
+            this.$bvToast.toast('Invalid quotation data', {
+                title: 'Error',
+                variant: 'danger'
+            });
+        }
+    },
+
+
+    editQuotation(quotation) {
+      this.$bvToast.toast(`Editing quotation: ${quotation.reference_number}`, {
+        title: 'Info',
+        variant: 'info'
+      });
+    },
+
+    calculateQuotationTotal(quotation) {
+      if (!quotation.quotation_products) return 0;
+      return quotation.quotation_products.reduce((total, qp) => {
+        return total + (qp.price * qp.quantity);
+      }, 0);
+    },
+
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    },
+
+    formatPrice(price) {
+      return new Intl.NumberFormat('en-PH', {
+        style: 'currency',
+        currency: 'PHP'
+      }).format(price || 0);
     },
 
     sort(field) {
@@ -189,6 +388,19 @@ export default {
     //Filter orders based on search query
     filterOrders() {
       this.currentPage = 1; //Reset current page when filtering
+    },
+
+    filterQuotations() {
+      this.quotationsCurrentPage = 1;
+    },
+
+    quotationTab(){
+      this.isQuotation = true;
+      this.isSample = false
+    },
+    sampleTab(){
+      this.isQuotation = false;
+      this.isSample = true;
     }
   }
 }

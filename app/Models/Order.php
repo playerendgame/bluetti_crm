@@ -57,6 +57,19 @@ class Order extends Model
         return $this->belongsToMany("App\Models\Product", 'order_products', 'order_id', 'product_id')->withPivot('quantity', 'price', 'discount', 'cogs');
     }
 
+    public function products()
+    {
+        return $this->belongsToMany("App\Models\Product", 'order_products', 'order_id', 'product_id')
+                    ->withPivot('quantity', 'price', 'discount', 'cogs');
+    }
+
+    public function order_product_items()
+    {
+        return $this->hasMany('App\Models\OrderProduct', 'order_id');
+    }
+
+
+
     public function referral()
     {
         return $this->belongsTo("App\Models\Referral");
@@ -118,7 +131,9 @@ class Order extends Model
         return $this->belongsTo('App\Models\Province', 'province_id');
     }
     
-    
+    public function order_history(){
+        return $this->hasMany('App\Models\OrderHistory', 'order_id');
+    }
 
     // public function paymentMethods()
     // {

@@ -4,9 +4,12 @@
         <update-orders-form-modal-component :order="order" @update-order="refreshAjaxUrl" />
         <update-order-delivery-status-form-modal-component :order="order" @update-order-delivery-status="refreshAjaxUrl" />
         <update-payment-details-modal-component :order="order" @update-payment="refreshAjaxUrl"/>
+        <import-order-data-component @orders-imported="refreshAjaxUrl"/>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="justify-content-center float-right">
+                    <button class="btn btn-success me-2" @click="importOrderData">Import</button>
                     <button type="button" class="btn btn-secondary my-2 me-2" @click="showHideFilters">
                         Filter
                     </button>
@@ -402,12 +405,8 @@ export default {
         }
     },
     methods: {
-        exportData() {
-            self = this;
-
-            Swal.fire({
-
-            });
+        importOrderData() {
+             this.$bvModal.show('import-order-data');
         },
         getPaymentMethodsInFiltering(){
             var self = this;
@@ -572,9 +571,90 @@ export default {
         updateOrderPayment(updatedPaymentMethod) {
             this.order.payment_method = updatedPaymentMethod;
         },
-        exportData() {
-            self = this;
+        // exportData() {
+        //     self = this;
 
+        //     let data = {
+        //         order_from: this.currentFilters.order_from,
+        //         order_to: this.currentFilters.order_to,
+        //         region: this.selectedRegionId,
+        //         province: this.currentFilters.province,
+        //         city: this.currentFilters.city,
+        //         admin: this.currentFilters.admin,
+        //         attribution: this.currentFilters.attribution,
+        //         courier: this.currentFilters.courier,
+        //         delivery_status: this.currentFilters.delivery_status,
+        //         dispatch_from: this.currentFilters.dispatch_from,
+        //         dispatch_to: this.currentFilters.dispatch_to,
+        //         delivered_from: this.currentFilters.delivered_from,
+        //         delivered_to: this.currentFilters.delivered_to,
+        //         payment_status: this.currentFilters.payment_status,
+        //         date_paid_from: this.currentFilters.date_paid_from,
+        //         date_paid_to: this.currentFilters.date_paid_to,
+        //         target_delivery_from: this.currentFilters.target_delivery_from,
+        //         target_delivery_to: this.currentFilters.target_delivery_to,
+        //         mop_id: this.currentFilters.mop_id,
+        //     };
+
+        //     Swal.fire({
+        //         title: "Export Orders",
+        //         text: "Are you sure you want to export these orders?",
+        //         icon: "warning",
+        //         showCancelButton: true,
+        //         confirmButtonColor: "#3085d6",
+        //         cancelButtonColor: "#d33",
+        //         confirmButtonText: "Export",
+        //         showLoaderOnConfirm: true,
+        //         preConfirm: function() {
+        //             return new Promise(function (resolve) {
+        //                 axios({
+        //                     method: "post",
+        //                     url: "/ajax/admin/orders/export",
+        //                     data: data,
+        //                     config: {headers: { "Content-type": "application/json"} },
+        //                 })
+        //                 .then(function (response) {
+        //                     if (response.data.success) {
+        //                         Swal.fire({
+        //                             title: response.data.message,
+        //                             text: "",
+        //                             icon: "success",
+        //                             showCancelButton: false,
+        //                             confirmButtonColor: "#3085d6",
+        //                             confirmButtonText: "Okay",
+        //                         })
+        //                     } else {
+        //                         Swal.fire({
+        //                             title: response.data.message,
+        //                             text: "",
+        //                             icon: "error",
+        //                             showCancelButton: false,
+        //                             confirmButtonText: "Okay",
+        //                         });
+        //                     }
+        //                 }).catch(function (response) {
+        //                     if(response.response == 422) {
+        //                         var key = Object.keys(response.response.data.errors)[0];
+        //                         var errorMessage = response.response.data.errors[key][0];
+        //                         Swal.fire({
+        //                             title: errorMessage,
+        //                             text: "",
+        //                             icon: "error",
+        //                             showCancelButton: false,
+        //                             confirmButtonText: "Okay",
+        //                         });
+        //                     }
+        //                 });
+        //             });
+        //         },
+        //         allowOutsideClick: false,
+        //     }).then((result) => {
+        //         if (!result.value) {
+
+        //         }
+        //     });
+        // }
+       exportData() {
             let data = {
                 order_from: this.currentFilters.order_from,
                 order_to: this.currentFilters.order_to,
@@ -597,63 +677,50 @@ export default {
                 mop_id: this.currentFilters.mop_id,
             };
 
+            // Show loading message
             Swal.fire({
                 title: "Export Orders",
-                text: "Are you sure you want to export these orders?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Export",
-                showLoaderOnConfirm: true,
-                preConfirm: function() {
-                    return new Promise(function (resolve) {
-                        axios({
-                            method: "post",
-                            url: "/ajax/admin/orders/export",
-                            data: data,
-                            config: {headers: { "Content-type": "application/json"} },
-                        })
-                        .then(function (response) {
-                            if (response.data.success) {
-                                Swal.fire({
-                                    title: response.data.message,
-                                    text: "",
-                                    icon: "success",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#3085d6",
-                                    confirmButtonText: "Okay",
-                                })
-                            } else {
-                                Swal.fire({
-                                    title: response.data.message,
-                                    text: "",
-                                    icon: "error",
-                                    showCancelButton: false,
-                                    confirmButtonText: "Okay",
-                                });
-                            }
-                        }).catch(function (response) {
-                            if(response.response == 422) {
-                                var key = Object.keys(response.response.data.errors)[0];
-                                var errorMessage = response.response.data.errors[key][0];
-                                Swal.fire({
-                                    title: errorMessage,
-                                    text: "",
-                                    icon: "error",
-                                    showCancelButton: false,
-                                    confirmButtonText: "Okay",
-                                });
-                            }
-                        });
-                    });
-                },
+                text: "Preparing your export file...",
+                icon: "info",
+                showCancelButton: false,
+                showConfirmButton: false,
                 allowOutsideClick: false,
-            }).then((result) => {
-                if (!result.value) {
-
+                didOpen: () => {
+                    Swal.showLoading();
                 }
             });
+
+            // Build URL with parameters - only include non-empty values
+            const params = new URLSearchParams();
+            Object.keys(data).forEach(key => {
+                if (data[key] !== null && data[key] !== undefined && data[key] !== '' && data[key] !== 0 && data[key] !== '0') {
+                    params.append(key, data[key]);
+                }
+            });
+            
+            const url = `/ajax/admin/orders/export-excel?${params.toString()}`;
+            
+            // Debug: Log the URL
+            console.log('Export URL:', url);
+            
+            // Create download link and trigger download
+            const link = document.createElement('a');
+            link.href = url;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Close the loading dialog after a short delay
+            setTimeout(() => {
+                Swal.close();
+                Swal.fire({
+                    title: "Export Started",
+                    text: "Your export file is being prepared and should download shortly.",
+                    icon: "info",
+                    confirmButtonText: "Okay"
+                });
+            }, 2000);
         }
     }
 }

@@ -12,6 +12,13 @@ class Product extends Model
     protected $softDelete = true;
     protected $dates = ["deleted_at"];
 
+    protected $fillable = [
+        'name',
+        'category_id',
+        'price',
+        'alt_name'
+    ];
+
     public function purchase_order()
     {
         return $this->belongsToMany("App\Models\Product", 'purchase_orders', 'product_id', 'purchase_id')->withPivot('quantity', 'distributor_price');
@@ -25,5 +32,9 @@ class Product extends Model
 
     public function product_category(){
         return $this->belongsTo(ProductCategory::class, 'category_id');
+    }
+
+    public function quotation_products(){
+        return $this->hasMany('App\Models\QuotationProducts', 'product_id');
     }
 }

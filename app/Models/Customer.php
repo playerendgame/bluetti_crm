@@ -17,9 +17,24 @@ class Customer extends Model
         'email',
     ];
 
+
+    public function orders()
+    {
+        return $this->hasMany('App\Models\Order', 'customer_id');
+    }
+
     public function showOrders(){
 
         return $this->hasMany('App\Models\Order');
 
     }
+
+    public function isNewCustomer(){
+        return $this->orders()->count() <= 1;
+    }
+
+    public function quotations(){
+        return $this->hasMany('App\Models\Quotations', 'customer_id');
+    }
+
 }

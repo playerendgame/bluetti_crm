@@ -328,6 +328,12 @@
                   <p>All</p>
                 </a>
               </li>
+              {{-- <li class="nav-item">
+                <a href="{{ route('admin.customers.leads')}}" class="nav-link @if (Request::is('admin/customers/leads')) active @endif">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Leads</p>
+                </a>
+              </li> --}}
             </ul>
           </li>
           @if (Auth::guard('admins')->user()->hasPermission('customers.show'))

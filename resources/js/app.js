@@ -11,6 +11,12 @@ import swal from 'sweetalert2';
 import Vue from 'vue';
 window.Swal = swal;
 
+
+import wysiwyg from "vue-wysiwyg";
+Vue.use(wysiwyg, {});
+import 'vue-wysiwyg/dist/vueWysiwyg.css';
+
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -86,12 +92,18 @@ Vue.component('create-customers-component', require('./components/admin/customer
 Vue.component('create-customer-form-modal-component', require('./components/admin/customers/modals/AddCustomerFormModalComponent.vue').default);
 Vue.component('view-customers-component', require('./components/admin/customers/ViewCustomerComponent.vue').default);
 Vue.component('customers-dashboard-component', require('./components/admin/customers/CustomersDashboardComponent.vue').default);
+// Vue.component('customers-leads-component', require('./components/admin/customers/CustomerLeadsComponent.vue').default);
+Vue.component('customers-quotations-component', require('./components/admin/customers/modals/AddQuotationModalComponent.vue').default);
+Vue.component('customers-view-quotations-component', require('./components/admin/customers/ViewQuotationComponent.vue').default);
 
 // Orders
 Vue.component('orders-component', require('./components/admin/orders/OrdersComponent.vue').default);
 Vue.component('create-orders-component', require('./components/admin/orders/AddOrdersComponent.vue').default);
 Vue.component('show-orders-component', require('./components/admin/orders/ShowOrdersComponent.vue').default);
 Vue.component('my-orders-component', require('./components/admin/orders/MyOrdersComponent.vue').default);
+Vue.component('orders-v2-component', require('./components/admin/orders/OrdersV2Component.vue').default);
+Vue.component('import-order-data-component', require('./components/admin/orders/modals/ImportOrdersModalComponent.vue').default);
+
 
 // Finance
 Vue.component('finance-purchase-order-component', require('./components/admin/finance/PurchaseOrderComponent.vue').default);

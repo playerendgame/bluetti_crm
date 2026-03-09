@@ -27,6 +27,12 @@ class OrderController extends Controller
         return view('admin.orders.my-orders');
     }
 
+    public function ordersV2(Request $request){
+        
+        return view('admin.orders.ordersV2');
+
+    }
+
     public function all(Request $request)
     {
         $input = $request->all();

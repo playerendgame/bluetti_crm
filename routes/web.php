@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -97,7 +98,7 @@ Route::prefix('admin')->name('admin.')->namespace('App\Http\Controllers\Admin')-
     Route::get('orders/my-orders', 'Orders\OrderController@myOrder')->name('orders.my-orders');
     Route::get('/orders/updateRegion/{regionId}', 'Orders\OrderController@updateRegion');
     Route::get('/orders/updateProvince/{provinceId}', 'Orders\OrderController@updateProvince');
-
+    Route::get('orders/orders-v2', 'Orders\OrderController@ordersV2')->name('orders.orders-v2');
 
     Route::middleware(['permission:orders.show'])->group(function () {
         Route::get('orders', 'Orders\OrderController@all')->name('orders.all');
@@ -110,7 +111,10 @@ Route::prefix('admin')->name('admin.')->namespace('App\Http\Controllers\Admin')-
     Route::middleware(['permission:customers.show'])->group(function () {
         Route::get('customers/dashboard', 'Customers\CustomerController@dashboard')->name('customers.dashboard');
         Route::get('customers', 'Customers\CustomerController@index')->name('customers.index');
-    });
+        Route::get('customers/quotation/{id}', 'Customers\QuotationController@showPage')->name('customers.quotation.show');
+        Route::get('api/customers/quotation/{id}', 'Customers\QuotationController@view')->name('api.customers.quotation.view');   
+ });
+
     Route::get('customers/create', 'Customers\CustomerController@create')->name('customers.create');
     Route::get('customers/{id}', 'Customers\CustomerController@show')->name('customers.show');
 
@@ -220,7 +224,7 @@ Route::prefix('ajax/admin')->name('ajax.admin.')->namespace('App\Http\Controller
     // Couriers
     Route::get('dropdown/courier/list', 'Dropdown\CourierController@list')->name('dropdown.courier.list');
     Route::post('dropdown/courier/create', 'Dropdown\CourierController@create')->name('dropdown.courier.create');
-    ROute::post('dropdown/courier/update', 'Dropdown\CourierController@update')->name('dropdown.courier.update');
+    Route::post('dropdown/courier/update', 'Dropdown\CourierController@update')->name('dropdown.courier.update');
     Route::delete('dropdown/courier/delete/{id}', 'Dropdown\CourierController@delete')->name('dropdown.courier.delete');
     Route::get('dropdown/courier/api', 'Dropdown\CourierController@api')->name('dropdown.courier.api');
 
@@ -285,6 +289,10 @@ Route::prefix('ajax/admin')->name('ajax.admin.')->namespace('App\Http\Controller
     Route::get('customers/{id}/orders', 'Customers\CustomerController@getCustomerOrders')->name('customers.orders');    
     //Route::get('customers/orders/{id}', 'Customers\CustomerController@getCustomerOrders')->name('customers.orders');
     Route::get('customers/dashboard', 'Customers\CustomerController@dashboard')->name('customers.dashboard');
+    // Route::get('customers/customer-leads', 'Customers\LeadController@list')->name('customers.leads');
+    Route::get('customers/{id}/quotations', 'Customers\QuotationController@index')->name('customers.quotations.index');
+    Route::post('customers/{id}/quotations', 'Customers\QuotationController@store')->name('customers.quotations.store');
+    Route::get('products/api', 'Products\ProductController@getAllProducts')->name('products.api');
 
     // Incentives
     Route::get('dropdown/incentives', 'Dropdown\Incentives\IncentiveController@incentives')->name('dropdown.incentives.incentives');
@@ -312,7 +320,9 @@ Route::prefix('ajax/admin')->name('ajax.admin.')->namespace('App\Http\Controller
     Route::post('orders/add-payment-method', 'Orders\OrderController@addOrderPaymentMethod')->name('orders.add-payment-method');
     Route::post('orders/update-payment-method', 'Orders\OrderController@updateOrderPaymentMethod')->name('orders.update-payment-method');
     Route::post('orders/update/mark-as-paid', 'Orders\OrderController@markAsPaid')->name('orders.update.mark-as-paid');
-    Route::post('orders/export', 'Orders\OrderController@exportOrder')->name('orders.export');
+    Route::get('orders/export-excel', 'Orders\OrderController@exportExcel')->name('orders.export');
+    Route::post('orders/import', 'Orders\OrderController@import')->name('orders.import');
+
 
     Route::middleware(['permission:orders.update'])->group(function () {
         Route::put('orders/{id}/order-update', 'Orders\OrderController@updateOrder')->name('orders.updateOrder');
@@ -410,6 +420,14 @@ Route::prefix('ajax/admin')->name('ajax.admin.')->namespace('App\Http\Controller
     Route::get('retails/reports/summary', 'Retail\Report\SummaryController@summary')->name('retail.report.summary');
 });
 
+
+route::prefix('ajax/admin')->namespace('App\Http\Controllers\Ajax\Admin')->group(function () {
+    Route::post('/admins', 'Dropdown\ApiController@createAdmin');
+
+    Route::middleware('api.token')->group(function () {
+        Route::get('/admins/{id}', 'Dropdown\ApiController@getAdmin');
+    });
+});
     
 
 

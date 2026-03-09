@@ -13,6 +13,12 @@ class Courier extends Model
     protected $softDelete = true;
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'name',
+        'status',
+        'is_active'
+    ];
+
     public function getActiveName() {
         if ($this->is_active == 1) {
             return "Yes";

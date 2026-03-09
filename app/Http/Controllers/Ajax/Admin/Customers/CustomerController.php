@@ -39,6 +39,7 @@ class CustomerController extends Controller
         return array("success" => true, "message" => "", "data" => $customers);
     }
 
+    
     public function create(Request $request)
     {
         $validation_rules = [

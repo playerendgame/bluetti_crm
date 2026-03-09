@@ -39,4 +39,5 @@ class CustomerController extends Controller
             abort(404);
         }
     }
+
 }

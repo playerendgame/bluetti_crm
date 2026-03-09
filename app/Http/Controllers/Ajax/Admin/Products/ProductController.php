@@ -34,13 +34,17 @@ class ProductController extends Controller
         $products = $query->paginate($request->per_page);
 
         foreach ($products as $product) {
+
+            $availableStocks = PurchaseOrder::where('product_id', $product->id)->sum('stocks_left');
+
             $purchase_orders = PurchaseOrder::where("product_id", '=', $product->id)->sum('quantity');
             $order_products = OrderProduct::whereHas('order', function ($query) {
                 $query->whereNotNull('deleted_at');
             })->where( 'product_id', '=', $product->id)->sum('quantity');
             $product->created_at_s = Carbon::parse($product->created_at)->toDayDateTimeString();
             $product->price_s = "₱ " . number_format($product->price, 2);
-            $product->stocks = $purchase_orders > 0 ? $purchase_orders - $order_products : 0;
+            // $product->stocks = $purchase_orders > 0 ? $purchase_orders - $order_products : 0;
+            $product->stocks = $availableStocks;
             $product->category = $product->product_category ? $product->product_category->name : '';
         }
 
@@ -243,7 +247,13 @@ class ProductController extends Controller
             return array("success" => false, "message" => "Failed to delete product.");
         }
     }
-    
+
+
+    public function getAllProducts()
+    {
+        $products = Products::all();
+        return response()->json($products);
+    }
     
     
 }

@@ -12,6 +12,14 @@ class Attribution extends Model
     protected $softDelete = true;
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'name',
+        'category',
+        'campaign_name',
+        'distribution_channel_id',
+        'is_active'
+    ];  
+
     public function getCategoryName()
     {
         if ($this->category == 1) {
@@ -48,4 +56,5 @@ class Attribution extends Model
     public function distribution_channel(){
         return $this->belongsTo(DistributionChannel::class, 'distribution_channel_id');
     }
+
 }

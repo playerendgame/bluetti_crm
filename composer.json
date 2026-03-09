@@ -13,11 +13,13 @@
         "endroid/qr-code": "^4.8",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
+        "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.3",
         "maatwebsite/excel": "^3.1",
+        "phpoffice/phpspreadsheet": "^1.30",
         "rap2hpoutre/fast-excel": "^4.1"
     },
     "require-dev": {

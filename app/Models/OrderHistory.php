@@ -9,6 +9,13 @@ class OrderHistory extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'order_id',
+        'description',
+        'notes',
+        'admin_id'
+    ];
+
     public function orders()
     {
         $this->belongsTo('App\Models\Order');
